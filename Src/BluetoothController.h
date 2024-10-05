@@ -10,10 +10,10 @@
 using Permission = Qt::PermissionStatus;
 
 /*!
- * \brief The BLEController class provides some hardware functionalities related to bluetooth
+ * \brief The BluetoothController class provides some hardware functionalities related to bluetooth
  * including getting permission, turning bluetooth on/off, etc
  */
-class BLEController : public QObject
+class BluetoothController : public QObject
 {
     Q_OBJECT
     QML_ELEMENT
@@ -46,13 +46,13 @@ public:
      * \param jsEngine
      * \return
      */
-    static BLEController* create(QQmlEngine* qmlEngine, QJSEngine* jsEngine);
+    static BluetoothController* create(QQmlEngine* qmlEngine, QJSEngine* jsEngine);
 
     /*!
      * \brief instance Returns the singleton instance of this class. This is here for use in C++
      * \return
      */
-    static BLEController& instance();
+    static BluetoothController& instance();
 
     /*!
      * \brief initialize Initializes bluetooth related properties, fetches required permissions.
@@ -108,7 +108,7 @@ public:
     Q_INVOKABLE void powerOff();
 
 private:
-    explicit BLEController(QObject *parent = nullptr);
+    explicit BluetoothController(QObject *parent = nullptr);
 
     /*!
      * \brief requestPermission Request bluetooth permission on Android/iOS
@@ -138,7 +138,7 @@ signals:
 
 private:
     //! \brief The single instance of this class
-    static BLEController* sInstance;
+    static BluetoothController* sInstance;
 
     //! \brief mDevice The instance related to this local device
     QBluetoothLocalDevice* mDevice;
@@ -151,22 +151,22 @@ private:
 };
 
 
-inline bool BLEController::bluetoothAvailable() const
+inline bool BluetoothController::bluetoothAvailable() const
 {
     return !mHostInfo.address().isNull();
 }
 
-inline Permission BLEController::permission() const
+inline Permission BluetoothController::permission() const
 {
     return mPermission;
 }
 
-inline bool BLEController::isReady() const
+inline bool BluetoothController::isReady() const
 {
     return bluetoothAvailable() && mPermission == Permission::Granted && mDevice;
 }
 
-inline BLEController::HostMode BLEController::bluetoothMode() const
+inline BluetoothController::HostMode BluetoothController::bluetoothMode() const
 {
     return HostMode(mDevice ? mDevice->hostMode()
                             : QBluetoothLocalDevice::HostMode::HostPoweredOff);
