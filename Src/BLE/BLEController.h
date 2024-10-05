@@ -85,8 +85,9 @@ public:
     void setPermission(Permission permission);
 
     /*!
-     * \brief isReady If the controller is set up
-     * \return
+     * \brief isReady If the controller is set up, ie there is a bluetooth device on host and the
+     * required permission is granted.
+     * \return This is a shortcut for \a bluetoothAvailable() && permission() == Permission::Granted
      */
     bool isReady() const;
 
@@ -95,6 +96,16 @@ public:
      * \return
      */
     HostMode bluetoothMode() const;
+
+    /*!
+     * \brief powerOn
+     */
+    Q_INVOKABLE void powerOn();
+
+    /*!
+     * \brief powerOff
+     */
+    Q_INVOKABLE void powerOff();
 
 private:
     explicit BLEController(QObject *parent = nullptr);
@@ -152,7 +163,7 @@ inline Permission BLEController::permission() const
 
 inline bool BLEController::isReady() const
 {
-    return bluetoothAvailable() && mPermission == Permission::Granted;
+    return bluetoothAvailable() && mPermission == Permission::Granted && mDevice;
 }
 
 inline BLEController::HostMode BLEController::bluetoothMode() const

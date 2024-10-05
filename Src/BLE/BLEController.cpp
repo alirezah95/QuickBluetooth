@@ -20,6 +20,7 @@ BLEController &BLEController::instance()
 BLEController::BLEController(QObject *parent)
     : QObject{ parent }
     , mDevice { nullptr }
+    , mPermission { Qt::PermissionStatus::Undetermined }
 {
 #if defined(Q_OS_LINUX) || defined(Q_OS_WIN)
     initialize();
@@ -28,26 +29,11 @@ BLEController::BLEController(QObject *parent)
 
 void BLEController::initialize()
 {
-    //! If permission is Undetermined request for it
-    switch (qApp->checkPermission(QBluetoothPermission())) {
-    case Qt::PermissionStatus::Undetermined:
-        qApp->requestPermission(QBluetoothPermission(), [&](const QPermission& permission) {
-            setPermission(permission.status());
-
-            //! Recall this method
-            initialize();
-        });
-    case Qt::PermissionStatus::Denied:
-        qWarning() << "BLE: Bluetooth permsission is denied";
-        emit error("BLE: Bluetooth permsission is denied");
-        return;
-    case Qt::PermissionStatus::Granted:
-        break; //! Continue this method
-    }
+    requestPermission(std::bind(&BLEController::initialize, this));
 
     //! Note if bluetooth permission is not granted host info and bluetooth device will be null
     if (QBluetoothLocalDevice::allDevices().length() == 0) {
-        qWarning() << "BLE: There is no bluetooth on the device.";
+        qWarning() << "There is no bluetooth on the device.";
     } else {
         setHostInfo(QBluetoothLocalDevice::allDevices().at(0));
         getDefaultDevice();
@@ -71,20 +57,37 @@ void BLEController::setPermission(Permission permission)
 
 void BLEController::requestPermission(std::function<void ()> cb)
 {
-#ifdef Q_OS_ANDROID
-    switch (qApp->checkPermission(QBluetoothPermission())) {
+    //! If permission is Undetermined request for it
+    setPermission(qApp->checkPermission(QBluetoothPermission()));
+
+    switch (mPermission) {
     case Qt::PermissionStatus::Undetermined:
-        qApp->requestPermission(QBluetoothPermission(), [&, cb](const QPermission &permission) {
-            setPermission(permission.status());
-        });
-        break;
+        qApp->requestPermission(QBluetoothPermission(), cb);
     case Qt::PermissionStatus::Denied:
-        qWarning() << "BLE: Bluetooth permission is denied";
+        qWarning() << "Bluetooth permsission is denied";
+        emit error("Bluetooth permsission is denied");
         return;
     case Qt::PermissionStatus::Granted:
-        return;
+        break; //! Continue this method
     }
-#endif
+}
+
+void BLEController::powerOn()
+{
+    if (isReady()) {
+        mDevice->powerOn();
+    } else {
+        qWarning() << "Bluetooth controller is not ready";
+    }
+}
+
+void BLEController::powerOff()
+{
+    if (isReady()) {
+        mDevice->setHostMode(QBluetoothLocalDevice::HostPoweredOff);
+    } else {
+        qWarning() << "Bluetooth controller is not ready";
+    }
 }
 
 void BLEController::setHostInfo(const QBluetoothHostInfo& bh)
@@ -107,4 +110,7 @@ void BLEController::getDefaultDevice()
 
     mDevice = new QBluetoothLocalDevice();
     emit bluetoothModeChanged();
+
+    connect(mDevice, &QBluetoothLocalDevice::hostModeStateChanged, this,
+            &BLEController::bluetoothModeChanged);
 }
