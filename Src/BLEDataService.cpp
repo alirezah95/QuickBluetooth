@@ -1,10 +1,41 @@
 #include "BLEDataService.h"
 
 #include <QtEndian>
+#include <QLowEnergyCharacteristicData>
+#include <QLowEnergyDescriptorData>
+#include <QLowEnergyServiceData>
 
 BLEDataService::BLEDataService(QObject *parent)
-    : QObject{parent}
+    : QObject{ parent }
+    , mValueLength { 2 }
 {}
+
+bool BLEDataService::setup(QLowEnergyController& leController)
+{
+    if (mServiceUuid.isNull() || mCharacterUuid.isNull() || mDescriptorUuid.isNull()) {
+        return false;
+    }
+
+    //! First set up characteristic data
+    QLowEnergyCharacteristicData charData;
+    charData.setUuid(mCharacterUuid);
+    charData.setValue(QByteArray(mValueLength, 0));
+    charData.setProperties(QLowEnergyCharacteristic::Read
+                           | QLowEnergyCharacteristic::Write
+                           | QLowEnergyCharacteristic::Notify);
+
+    //! Add Descriptor data
+    QLowEnergyDescriptorData des(mDescriptorUuid, QByteArray(mValueLength, 0));
+    charData.addDescriptor(des);
+
+    //! Create a service data
+    QLowEnergyServiceData serviceData;
+    serviceData.setType(QLowEnergyServiceData::ServiceTypePrimary);
+    serviceData.setUuid(mServiceUuid);
+    serviceData.addCharacteristic(charData);
+
+    return leController.addService(serviceData) != nullptr;
+}
 
 void BLEDataService::setValue(QByteArray value)
 {
@@ -76,6 +107,7 @@ void BLEDataService::setCharacterUuid(const QBluetoothUuid& newCharacterUuid)
     if (mCharacterUuid == newCharacterUuid) {
         return;
     }
+
     mCharacterUuid = newCharacterUuid;
     emit characterUuidChanged();
 }
@@ -93,4 +125,24 @@ void BLEDataService::setDescriptorUuid(const QBluetoothUuid& newDescriptorUuid)
 
     mDescriptorUuid = newDescriptorUuid;
     emit descriptorUuidChanged();
+}
+
+quint8 BLEDataService::valueLength() const
+{
+    return mValueLength;
+}
+
+void BLEDataService::setValueLength(quint8 newValueLength)
+{
+    if (mValueLength == newValueLength) {
+        return;
+    }
+
+    if (newValueLength < 1 || newValueLength > 31) {
+        qWarning() << "Value length must be greater than 0 and less than 32";
+        return;
+    }
+
+    mValueLength = newValueLength;
+    emit valueLengthChanged();
 }

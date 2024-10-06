@@ -3,6 +3,7 @@
 #include <QObject>
 #include <QQmlEngine>
 #include <QBluetoothUuid>
+#include <QLowEnergyController>
 
 /*!
  * \brief The BLEDataService class describes a service in a BLE connection that can be read or write
@@ -13,6 +14,7 @@ class BLEDataService : public QObject
     QML_ELEMENT
 
     Q_PROPERTY(QVariant value READ value NOTIFY valueChanged)
+    Q_PROPERTY(quint8 valueLength READ valueLength WRITE setValueLength NOTIFY valueLengthChanged FINAL)
     Q_PROPERTY(DataType dataType READ dataType WRITE setDataType NOTIFY dataTypeChanged)
     Q_PROPERTY(QBluetoothUuid serviceUuid READ serviceUuid WRITE setServiceUuid NOTIFY serviceUuidChanged FINAL)
     Q_PROPERTY(QBluetoothUuid characterUuid READ characterUuid WRITE setCharacterUuid NOTIFY characterUuidChanged FINAL)
@@ -30,6 +32,11 @@ public:
     Q_ENUM(DataType)
 
     explicit BLEDataService(QObject *parent = nullptr);
+
+    /*!
+     * \brief setup Set up this \ref BLEDataService so it can be used
+     */
+    bool setup(QLowEnergyController& leController);
 
     /*!
      * \brief value Returns the current value
@@ -89,6 +96,17 @@ public:
      */
     void setDescriptorUuid(const QBluetoothUuid& newDescriptorUuid);
 
+    /*!
+     * \brief valueLength Getter for value length
+     * \return
+     */
+    quint8 valueLength() const;
+    /*!
+     * \brief setValueLength Setter for value length
+     * \param newValueLength
+     */
+    void setValueLength(quint8 newValueLength);
+
 signals:
     /*!
      * \brief valueChanged This signal is emitted when the value of this data is changed
@@ -107,18 +125,23 @@ signals:
     void characterUuidChanged();
     void descriptorUuidChanged();
 
+    void valueLengthChanged();
+
 protected:
-    //! \brief mServiceUuid
+    //! \brief mServiceUuid Service class uuid for \a QLowEnergyServiceData
     QBluetoothUuid mServiceUuid;
 
-    //! \brief mCharacterUuid
+    //! \brief mCharacterUuid Characteristic uuid for \a QLowEnergyCharacteristicData
     QBluetoothUuid mCharacterUuid;
 
-    //! \brief mDescriptorUuid
+    //! \brief mDescriptorUuid Descriptor uuid in \a QLowEnergyDescriptorData
     QBluetoothUuid mDescriptorUuid;
 
     //! \brief mValue Value of this service data
     QVariant mValue;
+
+    //! \brief mValueLength Holds the length of the value for this service
+    quint8 mValueLength;
 
     //! \brief mDataType Holds the data type of this service
     DataType mDataType;
