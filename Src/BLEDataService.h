@@ -2,6 +2,7 @@
 
 #include <QObject>
 #include <QQmlEngine>
+#include <QBluetoothUuid>
 
 /*!
  * \brief The BLEDataService class describes a service in a BLE connection that can be read or write
@@ -13,6 +14,9 @@ class BLEDataService : public QObject
 
     Q_PROPERTY(QVariant value READ value NOTIFY valueChanged)
     Q_PROPERTY(DataType dataType READ dataType WRITE setDataType NOTIFY dataTypeChanged)
+    Q_PROPERTY(QBluetoothUuid serviceUuid READ serviceUuid WRITE setServiceUuid NOTIFY serviceUuidChanged FINAL)
+    Q_PROPERTY(QBluetoothUuid characterUuid READ characterUuid WRITE setCharacterUuid NOTIFY characterUuidChanged FINAL)
+    Q_PROPERTY(QBluetoothUuid descriptorUuid READ descriptorUuid WRITE setDescriptorUuid NOTIFY descriptorUuidChanged FINAL)
 
 public:
     /*!
@@ -46,12 +50,44 @@ public:
      * \return
      */
     DataType dataType() const;
-
     /*!
      * \brief setDataType
      * \param dataType
      */
     void setDataType(DataType dataType);
+
+    /*!
+     * \brief serviceUuid Service uuid getter
+     * \return
+     */
+    QBluetoothUuid serviceUuid() const;
+    /*!
+     * \brief setServiceUuid Service Uuid setter
+     * \param newServiceUuid
+     */
+    void setServiceUuid(const QBluetoothUuid& newServiceUuid);
+
+    /*!
+     * \brief characterUuid Character Uuid getter
+     * \return
+     */
+    QBluetoothUuid characterUuid() const;
+    /*!
+     * \brief setCharacterUuid Character uuid setter
+     * \param newCharacterUuid
+     */
+    void setCharacterUuid(const QBluetoothUuid& newCharacterUuid);
+
+    /*!
+     * \brief descriptorUuid Descriptor uuid getter
+     * \return
+     */
+    QBluetoothUuid descriptorUuid() const;
+    /*!
+     * \brief setDescriptorUuid Descriptor uuid setter
+     * \param newDescriptorUuid
+     */
+    void setDescriptorUuid(const QBluetoothUuid& newDescriptorUuid);
 
 signals:
     /*!
@@ -67,8 +103,20 @@ signals:
     void serviceDataModified(BLEDataService* service, QByteArray value, QPrivateSignal);
 
     void dataTypeChanged();
+    void serviceUuidChanged();
+    void characterUuidChanged();
+    void descriptorUuidChanged();
 
 protected:
+    //! \brief mServiceUuid
+    QBluetoothUuid mServiceUuid;
+
+    //! \brief mCharacterUuid
+    QBluetoothUuid mCharacterUuid;
+
+    //! \brief mDescriptorUuid
+    QBluetoothUuid mDescriptorUuid;
+
     //! \brief mValue Value of this service data
     QVariant mValue;
 
