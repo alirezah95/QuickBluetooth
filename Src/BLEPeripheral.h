@@ -3,6 +3,7 @@
 #include <QObject>
 #include <QQmlEngine>
 #include <QQmlListProperty>
+#include <QLowEnergyController>
 
 class BluetoothDeviceInfo;
 class BLEDataService;
@@ -20,9 +21,21 @@ class BLEPeripheral : public QObject
 
     Q_CLASSINFO("DefaultProperty", "services")
     Q_PROPERTY(ServicesListProperty services READ services NOTIFY servicesChanged FINAL)
+    Q_PROPERTY(QString localName READ localName WRITE setLocalName NOTIFY localNameChanged FINAL)
 
 public:
     explicit BLEPeripheral(QObject *parent = nullptr);
+
+    /*!
+     * \brief initialize Instances the BLE cotroller
+     * \note This method must be called after \ref BluetoothController::isReady is true
+     */
+    void initialize();
+
+    /*!
+     * \brief startAdvertising Starts the advertising process.
+     */
+    void startAdvertising();
 
     /*!
      * \brief device Gettero for \ref BluetoothDeviceInfo of currently connected device
@@ -35,6 +48,9 @@ public:
      * \return
      */
     ServicesListProperty services();
+
+    QString localName() const;
+    void setLocalName(const QString& localName);
 
 private:
     /*!
@@ -72,12 +88,20 @@ signals:
     void deviceChanged();
     void servicesChanged();
 
+    void localNameChanged();
+
 private:
+    //! \brief mController Holds the \a QLowEnergyController instance
+    QLowEnergyController* mController;
+
     //! \brief mServices All the services for this \ref BLEPeripheral
     QList<BLEDataService*> mServices;
 
     //! \brief Connected device
     BluetoothDeviceInfo* mDevice;
+
+    //! \brief mLocalName A name for advertising service
+    QString mLocalName;
 };
 
 
