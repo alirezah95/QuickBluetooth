@@ -58,7 +58,7 @@ public:
      * \brief initialize Initializes bluetooth related properties, fetches required permissions.
      * This method must be called before accessing any bluetooth permission on Android.
      */
-    void initialize();
+    Q_INVOKABLE void initialize();
 
     /*!
      * \brief name Returns the name of the host bluetooth device if any.

@@ -30,12 +30,12 @@ public:
      * \brief initialize Instances the BLE cotroller
      * \note This method must be called after \ref BluetoothController::isReady is true
      */
-    void initialize();
+    Q_INVOKABLE void initialize();
 
     /*!
      * \brief startAdvertising Starts the advertising process.
      */
-    void startAdvertising();
+    Q_INVOKABLE void startAdvertising();
 
     /*!
      * \brief device Gettero for \ref BluetoothDeviceInfo of currently connected device
@@ -83,6 +83,9 @@ private:
     static BLEDataService* servicesListAt(ServicesListProperty* services, qsizetype index);
     static qsizetype servicesListCount(ServicesListProperty* services);
     static void servicesListClear(ServicesListProperty* services);
+
+private slots:
+    void onErrorOccured(QLowEnergyController::Error error);
 
 signals:
     void deviceChanged();

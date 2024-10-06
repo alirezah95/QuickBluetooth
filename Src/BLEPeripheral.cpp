@@ -17,6 +17,8 @@ void BLEPeripheral::initialize()
     }
 
     mController = QLowEnergyController::createPeripheral(this);
+    connect(
+        mController, &QLowEnergyController::errorOccurred, this, &BLEPeripheral::onErrorOccured);
 }
 
 void BLEPeripheral::startAdvertising()
@@ -26,11 +28,16 @@ void BLEPeripheral::startAdvertising()
         return;
     }
 
+    if (mLocalName.isEmpty()) {
+        qWarning() << "Can't start advertising when local name is empty";
+        return;
+    }
+
     //! Create the list of service class uuids for advertising
     QList<QBluetoothUuid> services;
     for (BLEDataService* srv : mServices) {
         if (srv->setup(*mController)) {
-            services.append(srv->serviceUuid());
+            services.append(srv->serviceBluetoothUuid());
         }
     }
 
@@ -45,6 +52,8 @@ void BLEPeripheral::startAdvertising()
     mController->startAdvertising(QLowEnergyAdvertisingParameters(),
                                   advertisingData,
                                   advertisingData);
+
+    qDebug() << "BLEPeripheral advertising started with name : " << mLocalName;
 }
 
 ServicesListProperty BLEPeripheral::services()
@@ -111,6 +120,11 @@ qsizetype BLEPeripheral::servicesListCount(ServicesListProperty* services)
 void BLEPeripheral::servicesListClear(ServicesListProperty* services)
 {
     reinterpret_cast<BLEPeripheral*>(services->object)->serviceClear();
+}
+
+void BLEPeripheral::onErrorOccured(QLowEnergyController::Error error)
+{
+    qWarning() << "BLEPeripheral " << error << ", " << mController->errorString();
 }
 
 QString BLEPeripheral::localName() const
