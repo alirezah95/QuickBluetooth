@@ -16,9 +16,9 @@ class BLEDataService : public QObject
     Q_PROPERTY(QVariant value READ value NOTIFY valueChanged)
     Q_PROPERTY(quint8 valueLength READ valueLength WRITE setValueLength NOTIFY valueLengthChanged FINAL)
     Q_PROPERTY(DataType dataType READ dataType WRITE setDataType NOTIFY dataTypeChanged)
-    Q_PROPERTY(QBluetoothUuid serviceUuid READ serviceUuid WRITE setServiceUuid NOTIFY serviceUuidChanged FINAL)
-    Q_PROPERTY(QBluetoothUuid characterUuid READ characterUuid WRITE setCharacterUuid NOTIFY characterUuidChanged FINAL)
-    Q_PROPERTY(QBluetoothUuid descriptorUuid READ descriptorUuid WRITE setDescriptorUuid NOTIFY descriptorUuidChanged FINAL)
+    Q_PROPERTY(uint32_t serviceUuid READ serviceUuid WRITE setServiceUuid NOTIFY serviceUuidChanged FINAL)
+    Q_PROPERTY(uint32_t characterUuid READ characterUuid WRITE setCharacterUuid NOTIFY characterUuidChanged FINAL)
+    Q_PROPERTY(uint32_t descriptorUuid READ descriptorUuid WRITE setDescriptorUuid NOTIFY descriptorUuidChanged FINAL)
 
 public:
     /*!
@@ -64,37 +64,49 @@ public:
     void setDataType(DataType dataType);
 
     /*!
-     * \brief serviceUuid Service uuid getter
-     * \return
+     * \brief serviceUuid Service uuid getter for QML
+     * \return The uint32 form of service uuid
      */
-    QBluetoothUuid serviceUuid() const;
+    uint32_t serviceUuid() const;
+    /*!
+     * \brief serviceBluetoothUuid Returns the \a QBluetoothUuid of service
+     */
+    QBluetoothUuid serviceBluetoothUuid() const;
     /*!
      * \brief setServiceUuid Service Uuid setter
      * \param newServiceUuid
      */
-    void setServiceUuid(const QBluetoothUuid& newServiceUuid);
+    void setServiceUuid(uint32_t newServiceUuid);
 
     /*!
-     * \brief characterUuid Character Uuid getter
-     * \return
+     * \brief characterUuid Character Uuid getterfor QML
+     * \return The uint32 form of character uuid
      */
-    QBluetoothUuid characterUuid() const;
+    uint32_t characterUuid() const;
+    /*!
+     * \brief characterBluetoothUuid Returns the \a QBluetoothUuid of character
+     */
+    QBluetoothUuid characterBluetoothUuid() const;
     /*!
      * \brief setCharacterUuid Character uuid setter
      * \param newCharacterUuid
      */
-    void setCharacterUuid(const QBluetoothUuid& newCharacterUuid);
+    void setCharacterUuid(uint32_t newCharacterUuid);
 
     /*!
-     * \brief descriptorUuid Descriptor uuid getter
-     * \return
+     * \brief descriptorUuid Descriptor uuid getterfor QML
+     * \return The uint32 form of descriptor uuid
      */
-    QBluetoothUuid descriptorUuid() const;
+    uint32_t descriptorUuid() const;
+    /*!
+     * \brief descriptorBluetoothUuid Returns the \a QBluetoothUuid of descriptor
+     */
+    QBluetoothUuid descriptorBluetoothUuid() const;
     /*!
      * \brief setDescriptorUuid Descriptor uuid setter
      * \param newDescriptorUuid
      */
-    void setDescriptorUuid(const QBluetoothUuid& newDescriptorUuid);
+    void setDescriptorUuid(uint32_t newDescriptorUuid);
 
     /*!
      * \brief valueLength Getter for value length
@@ -156,4 +168,19 @@ inline QVariant BLEDataService::value() const
 inline BLEDataService::DataType BLEDataService::dataType() const
 {
     return mDataType;
+}
+
+inline QBluetoothUuid BLEDataService::serviceBluetoothUuid() const
+{
+    return mServiceUuid;
+}
+
+inline QBluetoothUuid BLEDataService::characterBluetoothUuid() const
+{
+    return mCharacterUuid;
+}
+
+inline QBluetoothUuid BLEDataService::descriptorBluetoothUuid() const
+{
+    return mDescriptorUuid;
 }

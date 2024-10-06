@@ -82,48 +82,54 @@ void BLEDataService::setDataType(DataType dataType)
     emit dataTypeChanged();
 }
 
-QBluetoothUuid BLEDataService::serviceUuid() const
+uint32_t BLEDataService::serviceUuid() const
 {
-    return mServiceUuid;
+    return mServiceUuid.toUInt32();
 }
 
-void BLEDataService::setServiceUuid(const QBluetoothUuid& newServiceUuid)
+void BLEDataService::setServiceUuid(uint32_t newServiceUuid)
 {
-    if (mServiceUuid == newServiceUuid) {
+    QBluetoothUuid uuid(newServiceUuid);
+
+    if (mServiceUuid == uuid) {
         return;
     }
 
-    mServiceUuid = newServiceUuid;
+    mServiceUuid = uuid;
     emit serviceUuidChanged();
 }
 
-QBluetoothUuid BLEDataService::characterUuid() const
+uint32_t BLEDataService::characterUuid() const
 {
-    return mCharacterUuid;
+    return mCharacterUuid.toUInt32();
 }
 
-void BLEDataService::setCharacterUuid(const QBluetoothUuid& newCharacterUuid)
+void BLEDataService::setCharacterUuid(uint32_t newCharacterUuid)
 {
-    if (mCharacterUuid == newCharacterUuid) {
+    QBluetoothUuid uuid(newCharacterUuid);
+
+    if (mCharacterUuid == uuid) {
         return;
     }
 
-    mCharacterUuid = newCharacterUuid;
+    mCharacterUuid = uuid;
     emit characterUuidChanged();
 }
 
-QBluetoothUuid BLEDataService::descriptorUuid() const
+uint32_t BLEDataService::descriptorUuid() const
 {
-    return mDescriptorUuid;
+    return mDescriptorUuid.toUInt32();
 }
 
-void BLEDataService::setDescriptorUuid(const QBluetoothUuid& newDescriptorUuid)
+void BLEDataService::setDescriptorUuid(uint32_t newDescriptorUuid)
 {
-    if (mDescriptorUuid == newDescriptorUuid) {
+    QBluetoothUuid uuid(newDescriptorUuid);
+
+    if (mDescriptorUuid == uuid) {
         return;
     }
 
-    mDescriptorUuid = newDescriptorUuid;
+    mDescriptorUuid = uuid;
     emit descriptorUuidChanged();
 }
 
