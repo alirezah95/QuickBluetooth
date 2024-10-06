@@ -7,6 +7,8 @@
 class BluetoothDeviceInfo;
 class BLEDataService;
 
+using ServicesListProperty = QQmlListProperty<BLEDataService>;
+
 /*!
  * \brief The BLEPeripheral class sets up services, advertise data, etc to provide the role of
  * peripheral of a BLE connection
@@ -16,6 +18,9 @@ class BLEPeripheral : public QObject
     Q_OBJECT
     QML_ELEMENT
 
+    Q_CLASSINFO("DefaultProperty", "services")
+    Q_PROPERTY(ServicesListProperty services READ services NOTIFY servicesChanged FINAL)
+
 public:
     explicit BLEPeripheral(QObject *parent = nullptr);
 
@@ -24,6 +29,12 @@ public:
      * \return
      */
     BluetoothDeviceInfo* device() const;
+
+    /*!
+     * \brief services Returns a \a QQmlListProperty instance for services property
+     * \return
+     */
+    ServicesListProperty services();
 
 private:
     /*!
@@ -51,8 +62,15 @@ private:
      */
     void serviceClear();
 
+    //! ServicesListProperty methods
+    static void servicesListAppend(ServicesListProperty* services, BLEDataService* service);
+    static BLEDataService* servicesListAt(ServicesListProperty* services, qsizetype index);
+    static qsizetype servicesListCount(ServicesListProperty* services);
+    static void servicesListClear(ServicesListProperty* services);
+
 signals:
     void deviceChanged();
+    void servicesChanged();
 
 private:
     //! \brief mServices All the services for this \ref BLEPeripheral
