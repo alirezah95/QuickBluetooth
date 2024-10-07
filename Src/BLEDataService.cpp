@@ -34,7 +34,15 @@ bool BLEDataService::setup(QLowEnergyController& leController)
     serviceData.setUuid(mServiceUuid);
     serviceData.addCharacteristic(charData);
 
-    return leController.addService(serviceData) != nullptr;
+    mService = leController.addService(serviceData);
+    if (mService) {
+        connect(mService, &QLowEnergyService::characteristicChanged, this,
+                &BLEDataService::onValueWritten);
+
+        return true;
+    }
+
+    return false;
 }
 
 void BLEDataService::setValue(QByteArray value)
@@ -151,4 +159,15 @@ void BLEDataService::setValueLength(quint8 newValueLength)
 
     mValueLength = newValueLength;
     emit valueLengthChanged();
+}
+
+void BLEDataService::onValueWritten(const QLowEnergyCharacteristic& characteristic,
+                                    const QByteArray& value)
+{
+    if (characteristic.uuid() != mCharacterUuid) {
+        return;
+    }
+
+    setValue(value);
+    emit valueUpdated(value, QPrivateSignal());
 }

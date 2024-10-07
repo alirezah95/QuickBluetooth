@@ -4,6 +4,7 @@
 #include <QQmlEngine>
 #include <QBluetoothUuid>
 #include <QLowEnergyController>
+#include <QLowEnergyService>
 
 /*!
  * \brief The BLEDataService class describes a service in a BLE connection that can be read or write
@@ -119,11 +120,27 @@ public:
      */
     void setValueLength(quint8 newValueLength);
 
+private slots:
+    /*!
+     * \brief onValueWritten This slot is connected to \a QLowEnergyService::characteristicWritten()
+     * signal
+     * \param characteristic
+     * \param value
+     */
+    void onValueWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &value);
+
 signals:
     /*!
      * \brief valueChanged This signal is emitted when the value of this data is changed
      */
     void valueChanged();
+
+    /*!
+     * \brief valueUpdated This signal is emitted when a new value is set for this charactristic
+     * data from other end of the connection. This is a private signal and can't be emitted from
+     * outside
+     */
+    void valueUpdated(QVariant value, QPrivateSignal);
 
     /*!
      * \brief serviceDataModified This signal is emmitted when
@@ -157,6 +174,10 @@ protected:
 
     //! \brief mDataType Holds the data type of this service
     DataType mDataType;
+
+    //! \brief mService The \a QLowEenergyService responsible for reading and writing for this \ref
+    //! BLEDataService
+    QLowEnergyService* mService;
 };
 
 
