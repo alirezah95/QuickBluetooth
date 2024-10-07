@@ -26,7 +26,7 @@ public:
      * \brief The DataType enum represents the type of data this service is holding
      */
     enum DataType {
-        Int,
+        Int,    //! 16 bit number
         Float,
         String
     };
@@ -35,9 +35,21 @@ public:
     explicit BLEDataService(QObject *parent = nullptr);
 
     /*!
+     * \brief isValid
+     * \return
+     */
+    bool isValid() const;
+
+    /*!
      * \brief setup Set up this \ref BLEDataService so it can be used
      */
     bool setup(QLowEnergyController& leController);
+
+    /*!
+     * \brief writeValue Send the value to the other end of connection
+     * \param value
+     */
+    Q_INVOKABLE void writeValue(const QVariant& value);
 
     /*!
      * \brief value Returns the current value
@@ -49,9 +61,9 @@ public:
      * \brief setValue Sets the value of this \ref BLEDataService using the given \a QByteArray and
      * based on the data type of this service
      * \note This method does not send the value to the other end of a BLE connection
-     * \param value
+     * \param byteArray
      */
-    void setValue(QByteArray value);
+    void setValue(QByteArray byteArray);
 
     /*!
      * \brief dataType
@@ -129,6 +141,21 @@ private slots:
      */
     void onValueWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &value);
 
+private:
+    /*!
+     * \brief valueToByteArray
+     * \param value
+     * \return
+     */
+    QByteArray valueToByteArray(const QVariant& value);
+
+    /*!
+     * \brief byteArrayToValue
+     * \param byteArray
+     * \return
+     */
+    QVariant byteArrayToValue(const QByteArray& byteArray);
+
 signals:
     /*!
      * \brief valueChanged This signal is emitted when the value of this data is changed
@@ -180,6 +207,14 @@ protected:
     QLowEnergyService* mService;
 };
 
+
+inline bool BLEDataService::isValid() const
+{
+    return !mServiceUuid.isNull()
+           && !mCharacterUuid.isNull()
+           && !mDescriptorUuid.isNull()
+           && mService;
+}
 
 inline QVariant BLEDataService::value() const
 {

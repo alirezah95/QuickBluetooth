@@ -45,34 +45,32 @@ bool BLEDataService::setup(QLowEnergyController& leController)
     return false;
 }
 
-void BLEDataService::setValue(QByteArray value)
+void BLEDataService::writeValue(const QVariant& value)
 {
-    if (value.length() == 0) {
+    if (!isValid() || value.isNull() || !value.isValid()) {
         return;
     }
 
-    QVariant newValue;
-    auto data = reinterpret_cast<const quint8*>(value.constData());
-
-    switch (mDataType) {
-    case DataType::Int:
-        if (value.length() < 2) { //! Two bytes required
-            return;
-        }
-        newValue = qFromLittleEndian<uint16_t>(data[0]);
-        break;
-    case DataType::Float:
-        if (value.length() < sizeof(float)) {
-            return;
-        }
-        newValue = qFromLittleEndian<float>(data[0]);
-        break;
-    case DataType::String:
-        newValue = QString(value);
-        break;
+    QByteArray data = valueToByteArray(value);
+    if (data.isEmpty()) {
+        return;
     }
 
-    if (mValue == newValue) {
+    QLowEnergyCharacteristic charac = mService->characteristic(mCharacterUuid);
+    if (!charac.isValid()) {
+        return;
+    }
+    mService->writeCharacteristic(charac, data);
+}
+
+void BLEDataService::setValue(QByteArray byteArray)
+{
+    if (byteArray.length() == 0) {
+        return;
+    }
+
+    QVariant newValue = byteArrayToValue(byteArray);
+    if (mValue == newValue || !newValue.isValid()) {
         return;
     }
 
@@ -170,4 +168,59 @@ void BLEDataService::onValueWritten(const QLowEnergyCharacteristic& characterist
 
     setValue(value);
     emit valueUpdated(value, QPrivateSignal());
+}
+
+QByteArray BLEDataService::valueToByteArray(const QVariant& value)
+{
+    QByteArray data;
+
+    switch (mDataType) {
+    case DataType::Int: { //! This is 16 bit
+        if (!value.canConvert<int>()) {
+            return QByteArray();
+        }
+        data.append(static_cast<uint16_t>(qToLittleEndian(value.value<int>())));
+        break;
+    }
+    case DataType::Float:
+        if (!value.canConvert<float>()) {
+            return QByteArray();
+        }
+        data.append(qToLittleEndian(value.value<float>()));
+        break;
+    case DataType::String:
+        if (!value.canConvert<QString>()) {
+            return QByteArray();
+        }
+        data.append(value.value<QString>().toUtf8());
+        break;
+    }
+
+    return data;
+}
+
+QVariant BLEDataService::byteArrayToValue(const QByteArray& byteArray)
+{
+    QVariant newValue;
+    auto data = reinterpret_cast<const quint8*>(byteArray.constData());
+
+    switch (mDataType) {
+    case DataType::Int:
+        if (byteArray.length() < 2) { //! Two bytes required
+            return QVariant();
+        }
+        newValue = qFromLittleEndian<uint16_t>(data[0]);
+        break;
+    case DataType::Float:
+        if (byteArray.length() < sizeof(float)) {
+            return QVariant();
+        }
+        newValue = qFromLittleEndian<float>(data[0]);
+        break;
+    case DataType::String:
+        newValue = QString(byteArray);
+        break;
+    }
+
+    return newValue;
 }
