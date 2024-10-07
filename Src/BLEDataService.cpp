@@ -47,7 +47,7 @@ bool BLEDataService::setup(QLowEnergyController& leController)
 
 void BLEDataService::writeValue(const QVariant& value)
 {
-    if (!isValid() || value.isNull() || !value.isValid()) {
+    if (!isValid() || !value.isValid()) {
         return;
     }
 
@@ -61,6 +61,17 @@ void BLEDataService::writeValue(const QVariant& value)
         return;
     }
     mService->writeCharacteristic(charac, data);
+    setValue(value);
+}
+
+void BLEDataService::setValue(QVariant value)
+{
+    if (!value.isValid()) {
+        return;
+    }
+
+    mValue = value;
+    emit valueChanged();
 }
 
 void BLEDataService::setValue(QByteArray byteArray)

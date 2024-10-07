@@ -58,6 +58,12 @@ public:
     QVariant value() const;
 
     /*!
+     * \brief setValue Sets the value to \a value without any conversion required
+     * \param value
+     */
+    void setValue(QVariant value);
+
+    /*!
      * \brief setValue Sets the value of this \ref BLEDataService using the given \a QByteArray and
      * based on the data type of this service
      * \note This method does not send the value to the other end of a BLE connection
