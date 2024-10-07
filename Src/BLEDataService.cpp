@@ -166,6 +166,8 @@ void BLEDataService::onValueWritten(const QLowEnergyCharacteristic& characterist
         return;
     }
 
+    QVariant newValue = byteArrayToValue(value);
+
     setValue(value);
     emit valueUpdated(value, QPrivateSignal());
 }
@@ -179,14 +181,14 @@ QByteArray BLEDataService::valueToByteArray(const QVariant& value)
         if (!value.canConvert<int>()) {
             return QByteArray();
         }
-        data.append(static_cast<uint16_t>(qToLittleEndian(value.value<int>())));
+        data.setNum(static_cast<uint16_t>(value.value<int>()));
         break;
     }
     case DataType::Float:
         if (!value.canConvert<float>()) {
             return QByteArray();
         }
-        data.append(qToLittleEndian(value.value<float>()));
+        data.setNum(static_cast<float>(value.value<float>()));
         break;
     case DataType::String:
         if (!value.canConvert<QString>()) {
@@ -202,25 +204,23 @@ QByteArray BLEDataService::valueToByteArray(const QVariant& value)
 QVariant BLEDataService::byteArrayToValue(const QByteArray& byteArray)
 {
     QVariant newValue;
-    auto data = reinterpret_cast<const quint8*>(byteArray.constData());
+
+    bool ok = true;
 
     switch (mDataType) {
     case DataType::Int:
-        if (byteArray.length() < 2) { //! Two bytes required
-            return QVariant();
-        }
-        newValue = qFromLittleEndian<uint16_t>(data[0]);
+        newValue = byteArray.toShort(&ok);
         break;
     case DataType::Float:
         if (byteArray.length() < sizeof(float)) {
             return QVariant();
         }
-        newValue = qFromLittleEndian<float>(data[0]);
+        newValue = byteArray.toFloat(&ok);
         break;
     case DataType::String:
         newValue = QString(byteArray);
         break;
     }
 
-    return newValue;
+    return ok ? newValue : QVariant();
 }
