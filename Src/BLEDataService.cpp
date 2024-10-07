@@ -97,6 +97,19 @@ void BLEDataService::setDataType(DataType dataType)
 
     mDataType = dataType;
     emit dataTypeChanged();
+
+    //! When data type is changed mValue should also be changed to a QVariant with this type
+    switch (mDataType) {
+    case DataType::Int:
+        setValue(QVariant::fromValue<uint16_t>(0));
+        break;
+    case DataType::Float:
+        setValue(QVariant::fromValue<float>(0));
+        break;
+    case DataType::String:
+        setValue(QVariant::fromValue<QString>(""));
+        break;
+    }
 }
 
 uint32_t BLEDataService::serviceUuid() const
@@ -178,9 +191,13 @@ void BLEDataService::onValueWritten(const QLowEnergyCharacteristic& characterist
     }
 
     QVariant newValue = byteArrayToValue(value);
+    if (!newValue.isValid()) {
+        qWarning() << "Invalid value recieved: " << mDataType << value << newValue;
+        return;
+    }
 
-    setValue(value);
-    emit valueUpdated(value, QPrivateSignal());
+    setValue(newValue);
+    emit valueUpdated(newValue, QPrivateSignal());
 }
 
 QByteArray BLEDataService::valueToByteArray(const QVariant& value)
@@ -223,9 +240,6 @@ QVariant BLEDataService::byteArrayToValue(const QByteArray& byteArray)
         newValue = byteArray.toShort(&ok);
         break;
     case DataType::Float:
-        if (byteArray.length() < sizeof(float)) {
-            return QVariant();
-        }
         newValue = byteArray.toFloat(&ok);
         break;
     case DataType::String:
