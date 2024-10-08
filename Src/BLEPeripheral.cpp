@@ -18,6 +18,12 @@ void BLEPeripheral::initialize()
     mController = QLowEnergyController::createPeripheral(this);
     connect(
         mController, &QLowEnergyController::errorOccurred, this, &BLEPeripheral::onErrorOccured);
+    connect(mController, &QLowEnergyController::connected, this, [&]() {
+        emit stateChanged();
+    });
+    connect(mController, &QLowEnergyController::disconnected, this, [&]() {
+        emit stateChanged();
+    });
 }
 
 void BLEPeripheral::startAdvertising()

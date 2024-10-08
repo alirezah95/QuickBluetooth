@@ -25,8 +25,24 @@ class BLERole : public QObject
     Q_CLASSINFO("DefaultProperty", "services")
     Q_PROPERTY(ServicesListProperty services READ services NOTIFY servicesChanged FINAL)
     Q_PROPERTY(BluetoothDeviceInfo* device READ device NOTIFY deviceChanged)
+    Q_PROPERTY(ControllerState state READ state NOTIFY stateChanged)
 
 public:
+    /*!
+     * \brief The ControllerState enum holds the state of the controller
+     */
+    enum ControllerState : uint8_t {
+        UnconnectedState = 0,
+        ConnectingState,
+        ConnectedState,
+        DiscoveringState,
+        DiscoveredState,
+        ClosingState,
+        AdvertisingState,
+    };
+    Q_ENUM(ControllerState)
+
+
     explicit BLERole(QObject *parent = nullptr);
 
     /*!
@@ -40,6 +56,12 @@ public:
      * \return
      */
     BluetoothDeviceInfo* device() const;
+
+    /*!
+     * \brief state
+     * \return
+     */
+    ControllerState state() const;
 
     /*!
      * \brief serviceAdd Adds the \ref BLEDataService instance to the list of servcies for
@@ -89,6 +111,7 @@ protected:
 
 signals:
     void deviceChanged();
+    void stateChanged();
     void servicesChanged();
 
 protected:
@@ -106,4 +129,9 @@ protected:
 inline BluetoothDeviceInfo* BLERole::device() const
 {
     return mDevice;
+}
+
+inline BLERole::ControllerState BLERole::state() const
+{
+    return mController ? ControllerState(mController->state()) : ControllerState::UnconnectedState;
 }

@@ -28,13 +28,16 @@ void BLECentral::setDevice(BluetoothDeviceInfo* dev)
 
         connect(mController, &QLowEnergyController::errorOccurred, this,
                 [this](QLowEnergyController::Error error) {
+                    emit stateChanged();
                     Q_UNUSED(error);
                     qWarning("BLECentral: Cannot connect to remote device.");
                 });
         connect(mController, &QLowEnergyController::connected, this, [this]() {
+            emit stateChanged();
             mController->discoverServices();
         });
         connect(mController, &QLowEnergyController::disconnected, this, [this]() {
+            emit stateChanged();
             qWarning("BLECentral: LowEnergy controller disconnected");
         });
 
@@ -43,12 +46,14 @@ void BLECentral::setDevice(BluetoothDeviceInfo* dev)
     }
 
     emit deviceChanged();
+    emit stateChanged();
 }
 
 void BLECentral::disconnect()
 {
     if (mController->state() == QLowEnergyController::ConnectedState) {
         mController->disconnectFromDevice();
+        emit stateChanged();
     }
 }
 
