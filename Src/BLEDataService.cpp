@@ -12,39 +12,51 @@ BLEDataService::BLEDataService(QObject *parent)
     , mValue { uint16_t(0) }
 {}
 
-bool BLEDataService::setup(QLowEnergyController& leController)
+QLowEnergyService* BLEDataService::setup(QLowEnergyController& leController)
 {
     if (mServiceUuid.isNull() || mCharacterUuid.isNull() || mDescriptorUuid.isNull()) {
-        return false;
+        return nullptr;
     }
 
-    //! First set up characteristic data
-    QLowEnergyCharacteristicData charData;
-    charData.setUuid(mCharacterUuid);
-    charData.setValue(QByteArray(mValueLength, 0));
-    charData.setProperties(QLowEnergyCharacteristic::Read
-                           | QLowEnergyCharacteristic::Write
-                           | QLowEnergyCharacteristic::Notify);
+    if (leController.role() == QLowEnergyController::PeripheralRole) {
+        //! This service is used in a Peripheral
 
-    //! Add Descriptor data
-    QLowEnergyDescriptorData des(mDescriptorUuid, QByteArray(mValueLength, 0));
-    charData.addDescriptor(des);
+        //! First set up characteristic data
+        QLowEnergyCharacteristicData charData;
+        charData.setUuid(mCharacterUuid);
+        charData.setValue(QByteArray(mValueLength, 0));
+        charData.setProperties(QLowEnergyCharacteristic::Read
+                               | QLowEnergyCharacteristic::Write
+                               | QLowEnergyCharacteristic::Notify);
 
-    //! Create a service data
-    QLowEnergyServiceData serviceData;
-    serviceData.setType(QLowEnergyServiceData::ServiceTypePrimary);
-    serviceData.setUuid(mServiceUuid);
-    serviceData.addCharacteristic(charData);
+        //! Add Descriptor data
+        QLowEnergyDescriptorData des(mDescriptorUuid, QByteArray(mValueLength, 0));
+        charData.addDescriptor(des);
 
-    mService = leController.addService(serviceData);
+        //! Create a service data
+        QLowEnergyServiceData serviceData;
+        serviceData.setType(QLowEnergyServiceData::ServiceTypePrimary);
+        serviceData.setUuid(mServiceUuid);
+        serviceData.addCharacteristic(charData);
+
+        mService = leController.addService(serviceData);
+    } else {
+        //! This service is used in a Central
+        mService = leController.createServiceObject(mServiceUuid, this);
+        if (mService) {
+            connect(mService, &QLowEnergyService::stateChanged, this,
+                    &BLEDataService::serviceStateChanged);
+        }
+    }
+
     if (mService) {
         connect(mService, &QLowEnergyService::characteristicChanged, this,
                 &BLEDataService::onValueWritten);
 
-        return true;
+        return mService;
     }
 
-    return false;
+    return nullptr;
 }
 
 void BLEDataService::writeValue(const QVariant& value)
@@ -188,6 +200,7 @@ void BLEDataService::setValueLength(quint8 newValueLength)
 void BLEDataService::onValueWritten(const QLowEnergyCharacteristic& characteristic,
                                     const QByteArray& value)
 {
+    qDebug() << "Value changed:" << value;
     if (characteristic.uuid() != mCharacterUuid) {
         return;
     }
@@ -200,6 +213,21 @@ void BLEDataService::onValueWritten(const QLowEnergyCharacteristic& characterist
 
     setValue(newValue);
     emit valueUpdated(newValue, QPrivateSignal());
+}
+
+void BLEDataService::serviceStateChanged(QLowEnergyService::ServiceState st)
+{
+    if (st == QLowEnergyService::RemoteServiceDiscovered) {
+        //! Enable notification for the descriptor of the service characteristics
+        QLowEnergyCharacteristic charData = mService->characteristic(mCharacterUuid);
+        if (charData.isValid()) {
+            QLowEnergyDescriptor srvDescriptor = charData.descriptor(QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration);
+            if (srvDescriptor.isValid()) {
+                mService->writeDescriptor(srvDescriptor,
+                                          QLowEnergyCharacteristic::CCCDEnableNotification);
+            }
+        }
+    }
 }
 
 QByteArray BLEDataService::valueToByteArray(const QVariant& value)

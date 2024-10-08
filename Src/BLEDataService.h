@@ -42,8 +42,9 @@ public:
 
     /*!
      * \brief setup Set up this \ref BLEDataService so it can be used
+     * \return The \a QLowEnergyService of this
      */
-    bool setup(QLowEnergyController& leController);
+    QLowEnergyService* setup(QLowEnergyController& leController);
 
     /*!
      * \brief writeValue Send the value to the other end of connection
@@ -146,6 +147,13 @@ private slots:
      * \param value
      */
     void onValueWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &value);
+
+    /*!
+     * \brief serviceStateChanged This slot is connected to \a QLowEnergyService::stateChanged()
+     * signal if this \ref BLEDataService is used in a Cental
+     * \param st
+     */
+    void serviceStateChanged(QLowEnergyService::ServiceState st);
 
 private:
     /*!
