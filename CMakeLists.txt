@@ -33,6 +33,8 @@ qt_add_qml_module(appQuickBluetooth
         Src/BLERole.cpp
         Src/BLEPeripheral.cpp
         Src/BLEPeripheral.h
+        Src/BLECentral.h
+        Src/BLECentral.cpp
 )
 
 #
