@@ -8,6 +8,8 @@
 BLEDataService::BLEDataService(QObject *parent)
     : QObject{ parent }
     , mValueLength { 2 }
+    , mDataType { DataType::Int }
+    , mValue { uint16_t(0) }
 {}
 
 bool BLEDataService::setup(QLowEnergyController& leController)
