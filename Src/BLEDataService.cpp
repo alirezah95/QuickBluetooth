@@ -14,7 +14,7 @@ BLEDataService::BLEDataService(QObject *parent)
 
 QLowEnergyService* BLEDataService::setup(QLowEnergyController& leController)
 {
-    if (mServiceUuid.isNull() || mCharacterUuid.isNull() || mDescriptorUuid.isNull()) {
+    if (mServiceUuid.isNull() || mCharacterUuid.isNull()) {
         return nullptr;
     }
 
@@ -30,7 +30,10 @@ QLowEnergyService* BLEDataService::setup(QLowEnergyController& leController)
                                | QLowEnergyCharacteristic::Notify);
 
         //! Add Descriptor data
-        QLowEnergyDescriptorData des(mDescriptorUuid, QByteArray(mValueLength, 0));
+        QLowEnergyDescriptorData des(
+            QBluetoothUuid::DescriptorType::ClientCharacteristicConfiguration,
+            QLowEnergyCharacteristic::CCCDEnableNotification);
+
         charData.addDescriptor(des);
 
         //! Create a service data
@@ -160,23 +163,6 @@ void BLEDataService::setCharacterUuid(uint32_t newCharacterUuid)
     emit characterUuidChanged();
 }
 
-uint32_t BLEDataService::descriptorUuid() const
-{
-    return mDescriptorUuid.toUInt32();
-}
-
-void BLEDataService::setDescriptorUuid(uint32_t newDescriptorUuid)
-{
-    QBluetoothUuid uuid(newDescriptorUuid);
-
-    if (mDescriptorUuid == uuid) {
-        return;
-    }
-
-    mDescriptorUuid = uuid;
-    emit descriptorUuidChanged();
-}
-
 quint8 BLEDataService::valueLength() const
 {
     return mValueLength;
@@ -200,7 +186,6 @@ void BLEDataService::setValueLength(quint8 newValueLength)
 void BLEDataService::onValueWritten(const QLowEnergyCharacteristic& characteristic,
                                     const QByteArray& value)
 {
-    qDebug() << "Value changed:" << value;
     if (characteristic.uuid() != mCharacterUuid) {
         return;
     }

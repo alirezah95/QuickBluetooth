@@ -19,7 +19,6 @@ class BLEDataService : public QObject
     Q_PROPERTY(DataType dataType READ dataType WRITE setDataType NOTIFY dataTypeChanged)
     Q_PROPERTY(uint32_t serviceUuid READ serviceUuid WRITE setServiceUuid NOTIFY serviceUuidChanged FINAL)
     Q_PROPERTY(uint32_t characterUuid READ characterUuid WRITE setCharacterUuid NOTIFY characterUuidChanged FINAL)
-    Q_PROPERTY(uint32_t descriptorUuid READ descriptorUuid WRITE setDescriptorUuid NOTIFY descriptorUuidChanged FINAL)
 
 public:
     /*!
@@ -114,21 +113,6 @@ public:
     void setCharacterUuid(uint32_t newCharacterUuid);
 
     /*!
-     * \brief descriptorUuid Descriptor uuid getterfor QML
-     * \return The uint32 form of descriptor uuid
-     */
-    uint32_t descriptorUuid() const;
-    /*!
-     * \brief descriptorBluetoothUuid Returns the \a QBluetoothUuid of descriptor
-     */
-    QBluetoothUuid descriptorBluetoothUuid() const;
-    /*!
-     * \brief setDescriptorUuid Descriptor uuid setter
-     * \param newDescriptorUuid
-     */
-    void setDescriptorUuid(uint32_t newDescriptorUuid);
-
-    /*!
      * \brief valueLength Getter for value length
      * \return
      */
@@ -204,9 +188,6 @@ protected:
     //! \brief mCharacterUuid Characteristic uuid for \a QLowEnergyCharacteristicData
     QBluetoothUuid mCharacterUuid;
 
-    //! \brief mDescriptorUuid Descriptor uuid in \a QLowEnergyDescriptorData
-    QBluetoothUuid mDescriptorUuid;
-
     //! \brief mValue Value of this service data
     QVariant mValue;
 
@@ -226,7 +207,6 @@ inline bool BLEDataService::isValid() const
 {
     return !mServiceUuid.isNull()
            && !mCharacterUuid.isNull()
-           && !mDescriptorUuid.isNull()
            && mService;
 }
 
@@ -248,9 +228,4 @@ inline QBluetoothUuid BLEDataService::serviceBluetoothUuid() const
 inline QBluetoothUuid BLEDataService::characterBluetoothUuid() const
 {
     return mCharacterUuid;
-}
-
-inline QBluetoothUuid BLEDataService::descriptorBluetoothUuid() const
-{
-    return mDescriptorUuid;
 }
