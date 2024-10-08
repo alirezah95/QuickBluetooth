@@ -5,8 +5,7 @@
 #include <QLowEnergyAdvertisingParameters>
 
 BLEPeripheral::BLEPeripheral(QObject *parent)
-    : QObject{ parent }
-    , mController { nullptr }
+    : BLERole{ parent }
 {}
 
 void BLEPeripheral::initialize()
@@ -56,72 +55,6 @@ void BLEPeripheral::startAdvertising()
     qDebug() << "BLEPeripheral advertising started with name : " << mLocalName;
 }
 
-ServicesListProperty BLEPeripheral::services()
-{
-    return QQmlListProperty<BLEDataService>(this, this,
-                                            &BLEPeripheral::servicesListAppend,
-                                            &BLEPeripheral::servicesListCount,
-                                            &BLEPeripheral::servicesListAt,
-                                            &BLEPeripheral::servicesListClear);
-}
-
-void BLEPeripheral::serviceAdd(BLEDataService* ble)
-{
-    if (!ble) {
-        return;
-    }
-
-    //! If a service with this uuid already exist, abort
-    auto srvIter = std::find_if(mServices.begin(), mServices.end(), [ble](BLEDataService* item){
-        return item->characterUuid() == ble->characterUuid();
-    });
-
-    if (srvIter != mServices.end()) {
-        qWarning() << "BLEDataService with the " << ble->characterUuid()
-                   << " UUID already exist, aborting";
-        return;
-    }
-
-    mServices.append(ble);
-    emit servicesChanged();
-}
-
-qsizetype BLEPeripheral::serviceCount() const
-{
-    return mServices.length();
-}
-
-BLEDataService* BLEPeripheral::serviceAt(qsizetype index)
-{
-    return index >= 0 && index < mServices.length() ? mServices.at(index) : nullptr;
-}
-
-void BLEPeripheral::serviceClear()
-{
-    qDeleteAll(mServices);
-    mServices.clear();
-}
-
-void BLEPeripheral::servicesListAppend(ServicesListProperty* services, BLEDataService* service)
-{
-    reinterpret_cast<BLEPeripheral*>(services->object)->serviceAdd(service);
-}
-
-BLEDataService* BLEPeripheral::servicesListAt(ServicesListProperty* services, qsizetype index)
-{
-    return reinterpret_cast<BLEPeripheral*>(services->object)->serviceAt(index);
-}
-
-qsizetype BLEPeripheral::servicesListCount(ServicesListProperty* services)
-{
-    return reinterpret_cast<BLEPeripheral*>(services->object)->serviceCount();
-}
-
-void BLEPeripheral::servicesListClear(ServicesListProperty* services)
-{
-    reinterpret_cast<BLEPeripheral*>(services->object)->serviceClear();
-}
-
 void BLEPeripheral::onErrorOccured(QLowEnergyController::Error error)
 {
     qWarning() << "BLEPeripheral " << error << ", " << mController->errorString();
@@ -140,4 +73,14 @@ void BLEPeripheral::setLocalName(const QString& localName)
 
     mLocalName = localName;
     emit localNameChanged();
+}
+
+void BLEPeripheral::readData(const QBluetoothUuid& uuid)
+{
+
+}
+
+void BLEPeripheral::writeData(const QBluetoothUuid& uuid, const QVariant& value)
+{
+
 }
