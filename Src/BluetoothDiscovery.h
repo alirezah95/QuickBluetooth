@@ -6,9 +6,6 @@
 
 class BluetoothDeviceInfo;
 
-using DiscoveryMethods = QBluetoothDeviceDiscoveryAgent::DiscoveryMethods;
-using DiscoveryMethod = QBluetoothDeviceDiscoveryAgent::DiscoveryMethod;
-
 /*!
  * \brief The BluetoothDiscovery class provides functionality to search and view nearby bluetooth
  * devices
@@ -24,6 +21,15 @@ class BluetoothDiscovery : public QObject
     Q_PROPERTY(DiscoveryMethods methods READ methods WRITE setMethods NOTIFY methodsChanged)
 
 public:
+    enum DiscoveryMethod
+    {
+        NoMethod = 0x0,
+        ClassicMethod = 0x01,
+        LowEnergyMethod = 0x02,
+    };
+    Q_DECLARE_FLAGS(DiscoveryMethods, DiscoveryMethod)
+    Q_FLAG(DiscoveryMethods)
+
     explicit BluetoothDiscovery(QObject *parent = nullptr);
 
     /*!
@@ -40,7 +46,7 @@ public:
      * \brief method Returns the method of discovery
      * \return
      */
-    DiscoveryMethods methods() const;
+    BluetoothDiscovery::DiscoveryMethods methods() const;
 
     /*!
      * \brief setMethod Sets the discovery method (only applied on next search)s
@@ -117,7 +123,7 @@ private:
 };
 
 
-inline DiscoveryMethods BluetoothDiscovery::methods() const
+inline BluetoothDiscovery::DiscoveryMethods BluetoothDiscovery::methods() const
 {
     return mDiscoveryMethods;
 }

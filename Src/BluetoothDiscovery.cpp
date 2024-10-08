@@ -30,7 +30,8 @@ void BluetoothDiscovery::start()
     mDevices.clear();
     emit devicesChanged();
 
-    mDevDiscovery->start(mDiscoveryMethods);
+    mDevDiscovery->start(
+        QBluetoothDeviceDiscoveryAgent::DiscoveryMethods::fromInt(mDiscoveryMethods));
     setIsActive(true);
 }
 
