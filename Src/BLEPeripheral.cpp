@@ -41,6 +41,17 @@ void BLEPeripheral::startAdvertising()
     //! Create the list of service class uuids for advertising
     QList<QBluetoothUuid> services;
     for (BLEDataService* srv : mServices) {
+        //! If a service with the same service uuid is already added abort adding this
+        auto buIt = std::find_if(services.begin(), services.end(), [srv](const QBluetoothUuid& bu) {
+            return bu == srv->serviceBluetoothUuid();
+        });
+        if (buIt != services.end()) {
+            //! This service is already added
+            qWarning() << "BLEDataService with uuid: " << srv->serviceBluetoothUuid().toUInt32()
+                       << " is already added.";
+            continue;
+        }
+
         if (srv->setup(*mController)) {
             services.append(srv->serviceBluetoothUuid());
         }

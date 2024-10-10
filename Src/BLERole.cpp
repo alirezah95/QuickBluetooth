@@ -14,17 +14,6 @@ void BLERole::serviceAdd(BLEDataService* ble)
         return;
     }
 
-    //! If a service with this uuid already exist, abort
-    auto srvIter = std::find_if(mServices.begin(), mServices.end(), [ble](BLEDataService* item){
-        return item->characterUuid() == ble->characterUuid();
-    });
-
-    if (srvIter != mServices.end()) {
-        qWarning() << "BLEDataService with the " << ble->characterUuid()
-                   << " UUID already exist, aborting";
-        return;
-    }
-
     mServices.append(ble);
     emit servicesChanged();
 }
