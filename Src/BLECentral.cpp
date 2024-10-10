@@ -60,7 +60,7 @@ void BLECentral::disconnect()
 void BLECentral::serviceDiscovered(const QBluetoothUuid& uuid)
 {
     auto dtService = std::find_if(mServices.begin(), mServices.end(), [&](BLEDataService* s) {
-        return s->characterBluetoothUuid() == uuid;
+        return s->serviceBluetoothUuid() == uuid;
     });
 
     if (dtService == mServices.end()) {
