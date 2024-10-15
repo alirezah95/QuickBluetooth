@@ -21,11 +21,7 @@ BluetoothController::BluetoothController(QObject *parent)
     : QObject{ parent }
     , mDevice { nullptr }
     , mPermission { Qt::PermissionStatus::Undetermined }
-{
-#if defined(Q_OS_LINUX) || defined(Q_OS_WIN)
-    initialize();
-#endif
-}
+{ }
 
 void BluetoothController::initialize()
 {
