@@ -24,19 +24,34 @@ BluetoothController &BluetoothController::instance()
 BluetoothController::BluetoothController(QObject *parent)
     : QObject{ parent }
     , mDevice { nullptr }
-    , mPermission { Qt::PermissionStatus::Undetermined }
-{ }
-
-void BluetoothController::initialize()
 {
-    requestPermission(std::bind(&BluetoothController::initialize, this));
+    //! If permission is Undetermined request for it
+    mPermission = qApp->checkPermission(QBluetoothPermission());
+}
 
-    //! Note if bluetooth permission is not granted host info and bluetooth device will be null
-    if (QBluetoothLocalDevice::allDevices().length() == 0) {
-        qWarning() << "There is no bluetooth on the device.";
-    } else {
-        setHostInfo(QBluetoothLocalDevice::allDevices().at(0));
-        getDefaultDevice();
+void BluetoothController::initialize(QVariant callback)
+{
+    //! Update permission first
+    setPermission(qApp->checkPermission(QBluetoothPermission()));
+
+    if (mPermission == Qt::PermissionStatus::Undetermined) {
+        return requestPermission(std::bind(&BluetoothController::initialize, this, callback));
+    }
+
+    if (mPermission == Qt::PermissionStatus::Granted) {
+        //! Note if bluetooth permission is not granted host info and bluetooth device will be null
+        if (QBluetoothLocalDevice::allDevices().length() == 0) {
+            qWarning() << "There is no bluetooth on the device.";
+        } else {
+            setHostInfo(QBluetoothLocalDevice::allDevices().at(0));
+            getDefaultDevice();
+        }
+    }
+
+    if (callback.canConvert<std::function<void ()>>()) {
+        callback.value<std::function<void ()>>()();
+    } else if (callback.canConvert<QJSValue>()) {
+        callJsCallback(callback.value<QJSValue>());
     }
 }
 
@@ -67,16 +82,14 @@ void BluetoothController::setBluetoothMode(HostMode mode)
 
 void BluetoothController::requestPermission(std::function<void ()> cb)
 {
-    //! If permission is Undetermined request for it
-    setPermission(qApp->checkPermission(QBluetoothPermission()));
-
     switch (mPermission) {
     case Qt::PermissionStatus::Undetermined:
         qApp->requestPermission(QBluetoothPermission(), cb);
+        return;
     case Qt::PermissionStatus::Denied:
         qWarning() << "Bluetooth permsission is denied";
         emit error("Bluetooth permsission is denied");
-        return;
+        break;
     case Qt::PermissionStatus::Granted:
         break; //! Continue this method
     }
@@ -123,4 +136,20 @@ void BluetoothController::getDefaultDevice()
 
     connect(mDevice, &QBluetoothLocalDevice::hostModeStateChanged, this,
             &BluetoothController::bluetoothModeChanged);
+}
+
+void BluetoothController::callJsCallback(QJSValue cb)
+{
+    if (!cb.isCallable()) {
+        return;
+    }
+
+    QJSValue result = cb.call();
+
+    if (result.isError()) {
+        qDebug("%s:%s: %s",
+               qPrintable(result.property("fileName").toString()),
+               qPrintable(result.property("lineNumber").toString()),
+               qPrintable(result.toString().toStdString().c_str()));
+    }
 }

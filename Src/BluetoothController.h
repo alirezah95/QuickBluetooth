@@ -57,8 +57,10 @@ public:
     /*!
      * \brief initialize Initializes bluetooth related properties, fetches required permissions.
      * This method must be called before accessing any bluetooth permission on Android.
+     * \param Callback Can hold a callable (either JS callable or C++ std::function) to be called
+     * when initialization is finished
      */
-    Q_INVOKABLE void initialize();
+    Q_INVOKABLE void initialize(QVariant callback = QVariant());
 
     /*!
      * \brief name Returns the name of the host bluetooth device if any.
@@ -132,6 +134,11 @@ private:
      * \param bld
      */
     void getDefaultDevice();
+
+    /*!
+     * \brief callJsCallback
+     */
+    void callJsCallback(QJSValue cb);
 
 signals:
     void error(const QString& error);
