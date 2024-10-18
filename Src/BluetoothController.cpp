@@ -5,15 +5,19 @@
 #include <QBluetoothPermission>
 
 //! \brief Initialize the single instance
-BluetoothController* BluetoothController::sInstance = new BluetoothController();
+BluetoothController* BluetoothController::sInstance = nullptr;
 
-BluetoothController *BluetoothController::create(QQmlEngine *qmlEngine, QJSEngine *jsEngine)
+BluetoothController* BluetoothController::create(QQmlEngine *qmlEngine, QJSEngine *jsEngine)
 {
-    return sInstance;
+    return &instance();
 }
 
 BluetoothController &BluetoothController::instance()
 {
+    if (!sInstance) {
+        sInstance = new BluetoothController;
+    }
+
     return *sInstance;
 }
 
@@ -49,6 +53,16 @@ void BluetoothController::setPermission(Permission permission)
 
     mPermission = permission;
     emit permissionChanged();
+}
+
+void BluetoothController::setBluetoothMode(HostMode mode)
+{
+    if (bluetoothMode() == mode) {
+        return;
+    }
+
+    mDevice->setHostMode(QBluetoothLocalDevice::HostMode(mode));
+    emit bluetoothModeChanged();
 }
 
 void BluetoothController::requestPermission(std::function<void ()> cb)

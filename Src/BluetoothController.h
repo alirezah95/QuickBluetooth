@@ -98,6 +98,12 @@ public:
     HostMode bluetoothMode() const;
 
     /*!
+     * \brief setHostMode
+     * \param mode
+     */
+    void setBluetoothMode(HostMode mode);
+
+    /*!
      * \brief powerOn
      */
     Q_INVOKABLE void powerOn();
