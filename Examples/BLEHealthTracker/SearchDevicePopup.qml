@@ -76,13 +76,18 @@ Popup {
                 enabled: !bluDiscovery.isActive && centeral
                 text: "Scan"
 
-                onClicked: {
+                onClicked: startScan()
+
+                function startScan()
+                {
                     if (!BluetoothController.isReady) {
-                        BluetoothController.initialize();
+                        BluetoothController.initialize(startScan);
+                        return;
                     }
 
                     if (BluetoothController.bluetoothMode === BluetoothController.HostPoweredOff) {
-                        BluetoothController.powerOn();
+                        BluetoothController.powerOn(startScan);
+                        return;
                     }
 
                     bluDiscovery.start();

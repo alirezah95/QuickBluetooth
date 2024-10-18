@@ -107,8 +107,9 @@ public:
 
     /*!
      * \brief powerOn
+     * \param callback Can hold a callable to be called after bluetooth is successfully turned on
      */
-    Q_INVOKABLE void powerOn();
+    Q_INVOKABLE void powerOn(QVariant callback = QVariant());
 
     /*!
      * \brief powerOff
@@ -134,6 +135,18 @@ private:
      * \param bld
      */
     void getDefaultDevice();
+
+    /*!
+     * \brief setupCallbackForPowerOn
+     * \param callback
+     */
+    void setupCallbackForPowerOn(QVariant callback);
+
+    /*!
+     * \brief callVariantCallback
+     * \param callback
+     */
+    void callVariantCallback(QVariant callback);
 
     /*!
      * \brief callJsCallback
