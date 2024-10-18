@@ -1,4 +1,4 @@
-#include "BluetoothDeviceInfo.h"
+#include "BluetoothDeviceInfo.hpp"
 
 BluetoothDeviceInfo::BluetoothDeviceInfo(const QBluetoothDeviceInfo& device, QObject *parent)
     : QObject{parent}

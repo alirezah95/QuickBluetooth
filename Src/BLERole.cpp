@@ -1,6 +1,6 @@
-#include "BLERole.h"
-#include "BLEDataService.h"
-#include "BluetoothDeviceInfo.h"
+#include "BLERole.hpp"
+#include "BLEDataService.hpp"
+#include "BluetoothDeviceInfo.hpp"
 
 BLERole::BLERole(QObject *parent)
     : QObject{ parent }

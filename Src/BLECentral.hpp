@@ -5,7 +5,7 @@
 #include <QLowEnergyService>
 #include <QLowEnergyController>
 
-#include "BLERole.h"
+#include "BLERole.hpp"
 
 /*!
  * \brief The BLECentral class handles the Central role functionality in a BLE connection

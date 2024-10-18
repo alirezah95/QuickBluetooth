@@ -5,7 +5,7 @@
 #include <QQmlListProperty>
 #include <QLowEnergyController>
 
-#include "BLERole.h"
+#include "BLERole.hpp"
 
 
 /*!

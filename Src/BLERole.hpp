@@ -5,7 +5,7 @@
 #include <QQmlListProperty>
 #include <QLowEnergyController>
 
-#include "BluetoothDeviceInfo.h"
+#include "BluetoothDeviceInfo.hpp"
 
 class BluetoothDeviceInfo;
 class BLEDataService;

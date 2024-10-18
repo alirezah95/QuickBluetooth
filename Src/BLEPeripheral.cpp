@@ -1,6 +1,6 @@
-#include "BLEPeripheral.h"
-#include "BLEDataService.h"
-#include "BluetoothController.h"
+#include "BLEPeripheral.hpp"
+#include "BLEDataService.hpp"
+#include "BluetoothController.hpp"
 
 #include <QLowEnergyAdvertisingParameters>
 

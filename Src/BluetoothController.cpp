@@ -1,4 +1,4 @@
-#include "BluetoothController.h"
+#include "BluetoothController.hpp"
 
 #include <QCoreApplication>
 #include <QBluetoothLocalDevice>
@@ -48,11 +48,7 @@ void BluetoothController::initialize(QVariant callback)
         }
     }
 
-    if (callback.canConvert<std::function<void ()>>()) {
-        callback.value<std::function<void ()>>()();
-    } else if (callback.canConvert<QJSValue>()) {
-        callJsCallback(callback.value<QJSValue>());
-    }
+    callVariantCallback(callback);
 }
 
 QString BluetoothController::name() const
@@ -95,9 +91,19 @@ void BluetoothController::requestPermission(std::function<void ()> cb)
     }
 }
 
-void BluetoothController::powerOn()
+void BluetoothController::powerOn(QVariant callback)
 {
     if (isReady()) {
+        //! If device is already powered on, return
+        if (bluetoothMode() != BluetoothController::HostPoweredOff) {
+            //! Already on
+            qDebug() << "Already on";
+            callVariantCallback(callback);
+            return;
+        }
+
+        //! Make sure the callback is called when devices turns on
+        setupCallbackForPowerOn(callback);
         mDevice->powerOn();
     } else {
         qWarning() << "Bluetooth controller is not ready";
@@ -136,6 +142,22 @@ void BluetoothController::getDefaultDevice()
 
     connect(mDevice, &QBluetoothLocalDevice::hostModeStateChanged, this,
             &BluetoothController::bluetoothModeChanged);
+}
+
+void BluetoothController::setupCallbackForPowerOn(QVariant callback)
+{
+    connect(mDevice, &QBluetoothLocalDevice::hostModeStateChanged, this,
+            std::bind(&BluetoothController::callVariantCallback, this, callback),
+            Qt::SingleShotConnection);
+}
+
+void BluetoothController::callVariantCallback(QVariant callback)
+{
+    if (callback.canConvert<std::function<void ()>>()) {
+        callback.value<std::function<void ()>>()();
+    } else if (callback.canConvert<QJSValue>()) {
+        callJsCallback(callback.value<QJSValue>());
+    }
 }
 
 void BluetoothController::callJsCallback(QJSValue cb)

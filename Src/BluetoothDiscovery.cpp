@@ -1,5 +1,5 @@
-#include "BluetoothDiscovery.h"
-#include "BluetoothDeviceInfo.h"
+#include "BluetoothDiscovery.hpp"
+#include "BluetoothDeviceInfo.hpp"
 
 BluetoothDiscovery::BluetoothDiscovery(QObject *parent)
     : QObject{parent}

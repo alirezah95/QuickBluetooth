@@ -20,20 +20,20 @@ qt_add_qml_module(appQuickBluetooth
     URI QuickBluetooth
     VERSION 1.0
     SOURCES
-        Src/BluetoothController.h
+        Src/BluetoothController.hpp
         Src/BluetoothController.cpp
         Src/BluetoothDeviceInfo.cpp 
-        Src/BluetoothDeviceInfo.h 
+        Src/BluetoothDeviceInfo.hpp
         Src/BluetoothDiscovery.cpp 
-        Src/BluetoothDiscovery.h
+        Src/BluetoothDiscovery.hpp
         
         Src/BLEDataService.cpp
-        Src/BLEDataService.h
-        Src/BLERole.h
+        Src/BLEDataService.hpp
+        Src/BLERole.hpp
         Src/BLERole.cpp
         Src/BLEPeripheral.cpp
-        Src/BLEPeripheral.h
-        Src/BLECentral.h
+        Src/BLEPeripheral.hpp
+        Src/BLECentral.hpp
         Src/BLECentral.cpp
 )
 

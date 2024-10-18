@@ -1,5 +1,5 @@
-#include "BLECentral.h"
-#include "BLEDataService.h"
+#include "BLECentral.hpp"
+#include "BLEDataService.hpp"
 
 BLECentral::BLECentral(QObject *parent)
     : BLERole{ parent }
